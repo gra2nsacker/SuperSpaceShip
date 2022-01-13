@@ -8,7 +8,7 @@ class Player:
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.width = width
-        self.height = height
+        self.height = height + 1
 
     def move(self, x, y):
         self.pos_x += x
