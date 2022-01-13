@@ -1,67 +1,69 @@
+from random import random
 import pygame
+from pygame.sprite import Sprite
+
+
+class Player:
+    def __init__(self, width, height, pos_x, pos_y):
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.width = width
+        self.height = height
+
+    def move(self, x, y):
+        self.pos_x += x
+        self.pos_y += y
+
+    def get_width(self):
+        return self.width
+
+    def get_height(self):
+        return self.height
+
+    def get_position(self):
+        return self.pos_x, self.pos_y
 
 
 class Board:
-    def __init__(self, width, height):
+    def __init__(self, width, height, screen):
         self.width = width
         self.height = height
-        self.board = [[0] * width for _ in range(height)]
-        # значения по умолчанию
-        self.left = 10
-        self.top = 10
-        self.cell_size = 50
+        self.screen = screen
 
-    # настройка внешнего вида
-    def set_view(self, left, top, cell_size):
-        self.left = left
-        self.top = top
-        self.cell_size = cell_size
-
-    def render(self, screen):
-        colors = [pygame.color.Color('Black'), pygame.color.Color("White")]
-        for y in range(self.height):
-            for x in range(self.width):
-                pygame.draw.rect(screen, colors[self.board[y][x]], (
-                    x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size,
-                    self.cell_size))
-                pygame.draw.rect(screen, pygame.Color(255, 255, 255), (
-                    x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size,
-                    self.cell_size), 1)
-
-    def on_click(self, cell):
-        for i in range(self.width):
-            self.board[cell[1]][i] = (self.board[cell[1]][i] + 1) % 2
-        for i in range(self.height):
-            # чтобы не перекрашивать дважды
-            if i == cell[1]:
-                continue
-            self.board[i][cell[0]] = (self.board[i][cell[0]] + 1) % 2
-
-    def get_cell(self, mouse_pos):
-        cell_x = (mouse_pos[0] - self.left) // self.cell_size
-        cell_y = (mouse_pos[1] - self.top) // self.cell_size
-        if cell_x < 0 or cell_x >= self.width or cell_y < 0 or cell_y >= self.height:
-            return None
-        return cell_x, cell_y
-
-    def get_click(self, mouse_pos):
-        cell = self.get_cell(mouse_pos)
-        if cell:
-            self.on_click(cell)
-        else:
-            print("Не попал!")
+    def render(self):
+        for i in range(200):
+            self.screen.fill(pygame.Color('white'),
+                        (random() * self.width,
+                         random() * self.height, 1, 1))
 
 
-board = Board(5, 5)
-running = True
-size = 500, 500
-screen = pygame.display.set_mode(size)
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            board.get_click(event.pos)
-    screen.fill((0, 0, 0))
-    board.render(screen)
-    pygame.display.flip()
+
+def main():
+    size = 500, 500
+    space_screen = pygame.display.set_mode(size)
+    # space_screen = pygame.display.set_mode(size)
+
+    '''создание персонажа'''
+    player = Player(10, 10, size[0] // 2, 10)
+    pygame.draw.circle(space_screen, (255, 0, 0), player.get_position(), 10)
+
+    board = Board(500, 500, space_screen)
+    running = True
+    board.render()
+    k_timer = 0
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        k_timer += 1
+        player.move(0, 10)
+        board.render()
+        space_screen.fill((0, 0, 0))
+        # if k_timer % 5000 == 0:
+        #     board.render()
+
+        pygame.display.flip()
+
+
+if __name__ == '__main__':
+    main()
