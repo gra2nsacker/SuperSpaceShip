@@ -33,13 +33,22 @@ class Board:
                          random.random() * self.height, 1, 1))
 
 
-class Hero():
-    def __init__(self):
-        all_sprites = pygame.sprite.Group()
-        hero_image = load_image("spaceship2.jpg")
-        hero = pygame.sprite.Sprite(all_sprites)
-        hero.image = hero_image
-        hero.rect = hero.image.get_rect()
+class Hero(pygame.sprite.Sprite):
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = load_image("spaceship2.jpg")
+        self.rect = self.image.get_rect()
+        self.rect.x = 100
+        self.rect.y = 100
+
+
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = load_image("spaceship2.jpg")
+        self.rect = self.image.get_rect()
+        self.rect.x = 800
+        self.rect.y = 800
 
 
 def main():
@@ -47,8 +56,12 @@ def main():
     space_screen = pygame.display.set_mode(size)
     board = Board(1000, 1000, space_screen)
 
-
+    all_sprites = pygame.sprite.Group()
+    hero = Hero(all_sprites)
     dist = 10
+
+    enemy_sprites = pygame.sprite.Group()
+    enemy = Enemy(enemy_sprites)
 
     running = True
     while running:
@@ -67,6 +80,7 @@ def main():
         space_screen.fill((0, 0, 20))
         board.render()
         all_sprites.draw(space_screen)
+        enemy_sprites.draw(space_screen)
         pygame.display.flip()
 
     pygame.quit()
