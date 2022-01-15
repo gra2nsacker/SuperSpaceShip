@@ -36,19 +36,23 @@ class Board:
 class Hero(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
-        self.image = load_image("spaceship2.jpg")
+        self.image = load_image("spaceship_hero.png")
         self.rect = self.image.get_rect()
-        self.rect.x = 100
-        self.rect.y = 100
+        self.rect.x = 400
+        self.rect.y = 800
 
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
-        self.image = load_image("spaceship2.jpg")
+        self.image = load_image("spaceship.png")
         self.rect = self.image.get_rect()
-        self.rect.x = 800
-        self.rect.y = 800
+        self.rect.x = 100
+        self.rect.y = 100
+
+
+def Fire(screen, left, top):
+    pygame.draw.rect(screen, "YELLOW", (left, top, 10, 200))
 
 
 def main():
@@ -77,6 +81,16 @@ def main():
                 hero.rect.left += dist
             elif key[pygame.K_LEFT]:
                 hero.rect.left -= dist
+            if key[pygame.K_SPACE]:
+                Fire(space_screen,  hero.rect.left, hero.rect.top)
+            if hero.rect.top < 600:
+                hero.rect.top = 600
+            if hero.rect.left < 0:
+                hero.rect.left = 0
+            if hero.rect.right > 1000:
+                hero.rect.right = 1000
+            if hero.rect.bottom > 1000:
+                hero.rect.bottom = 1000
         space_screen.fill((0, 0, 20))
         board.render()
         all_sprites.draw(space_screen)
