@@ -8,6 +8,7 @@ import pygame
 FIRES_ARRAY = []
 ENEMIES_ARRAY = []
 SIZE = 1000, 1000
+cnt = 0
 
 
 def load_image(name, color_key=None):
@@ -133,7 +134,7 @@ def main():
     board = Board(size[0], size[1], stars_screen)
     all_sprites = pygame.sprite.Group()
     hero = Hero(all_sprites)
-    dist = 10
+    dist = 1
 
     enemy_sprites = pygame.sprite.Group()
 
@@ -143,21 +144,23 @@ def main():
     running = True
     while running:
         k += 1
-        if k % 500 == 0:
+        if k % 900 == 0:
             spawn_enemy(board, enemy_sprites)
         tick(hero)
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_DOWN]:
+            hero.rect.top += dist
+        elif keys[pygame.K_UP]:
+            hero.rect.top -= dist
+        if keys[pygame.K_RIGHT]:
+            hero.rect.left += dist
+        elif keys[pygame.K_LEFT]:
+            hero.rect.left -= dist
         for event in pygame.event.get():
+            keys = pygame.key.get_pressed()
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_DOWN:
-                    hero.rect.top += dist
-                elif event.key == pygame.K_UP:
-                    hero.rect.top -= dist
-                if event.key == pygame.K_RIGHT:
-                    hero.rect.left += dist
-                elif event.key == pygame.K_LEFT:
-                    hero.rect.left -= dist
                 if event.key == pygame.K_SPACE:
                     shoot(fire_sprites, hero.rect.left + 10, hero.rect.top - 20)
             if hero.rect.top < 600:
@@ -168,6 +171,8 @@ def main():
                 hero.rect.right = 1000
             if hero.rect.bottom > 1000:
                 hero.rect.bottom = 1000
+        if k >= 10000:
+            k = 0
 
         stars_screen.fill((0, 0, 20))
         board.render()
