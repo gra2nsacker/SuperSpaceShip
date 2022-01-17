@@ -1,14 +1,15 @@
 import os
 import random
 import sys
-
 import pygame
+pygame.font.init()
 
 
 FIRES_ARRAY = []
 ENEMIES_ARRAY = []
 SIZE = 1000, 1000
-cnt = 0
+CNT = 0
+LIFES = 3
 
 
 def load_image(name, color_key=None):
@@ -50,7 +51,7 @@ class Fire(pygame.sprite.Sprite):
         self.rect.y = 0
 
     def move(self):
-        self.rect.y -= 2
+        self.rect.y -= 6
 
     def set_coords(self, x, y):
         self.rect.x = x
@@ -75,7 +76,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.y = 100
 
     def move(self):
-        self.rect.y += 1
+        self.rect.y += 2
 
     def set_coords(self, x, y):
         self.rect.x = x
@@ -96,12 +97,12 @@ def spawn_enemy(board, enemy_sprites):
 
 
 def game_over():
+    print(CNT)
     sys.exit()
 
 
 def tick(hero):
-    global ENEMIES_ARRAY
-    TMP_ARRAY = []
+    global ENEMIES_ARRAY, CNT
     shipes_colides = pygame.sprite.Group([ship for ship in ENEMIES_ARRAY])
     for i in FIRES_ARRAY:
         i.move()
@@ -119,8 +120,18 @@ def tick(hero):
                         ENEMIES_ARRAY.pop(k)
                         fire.kill()
                         FIRES_ARRAY.remove(fire)
-                        # Андрон, вот здесь счет + 1
+                        CNT += 1
                         break
+
+
+def score(screen):
+    f1 = pygame.font.Font(None, 50)
+    text1 = f1.render(f'SCORE: {CNT}', True,
+                      (255, 255, 255))
+    screen.blit(text1, (800, 100))
+
+
+
 
 
 def main():
@@ -130,19 +141,29 @@ def main():
     fire_screen = pygame.display.set_mode(size)
     score_screen = pygame.display.set_mode(size)
 
+    # sc = pygame.display.set_mode(SIZE)
+    #
+    # f1 = pygame.font.Font(None, 36)
+    # text1 = f1.render('Hello Привет', True,
+    #                   (255, 255, 255))
+    #
+    # sc.blit(text1, (100, 500))
+    # Надо спросить ДГЖ по поводу возникновения текста поверх экрана
 
     board = Board(size[0], size[1], stars_screen)
     all_sprites = pygame.sprite.Group()
     hero = Hero(all_sprites)
-    dist = 1
+    dist = 2
 
     enemy_sprites = pygame.sprite.Group()
 
     fire_sprites = pygame.sprite.Group()
-
+    sc = pygame.display.set_mode(SIZE)
     k = 0
     running = True
     while running:
+        if LIFES == 0:
+            game_over()
         k += 1
         if k % 900 == 0:
             spawn_enemy(board, enemy_sprites)
@@ -176,6 +197,7 @@ def main():
 
         stars_screen.fill((0, 0, 20))
         board.render()
+        score(sc)
 
         all_sprites.draw(space_screen)
         enemy_sprites.draw(space_screen)
