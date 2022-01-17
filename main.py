@@ -1,4 +1,4 @@
-import random
+from random import random
 import pygame
 import os
 import sys
@@ -54,20 +54,26 @@ class Board:
 def main():
     size = 500, 500
     space_screen = pygame.display.set_mode(size)
+    # space_screen = pygame.display.set_mode(size)
+
+    '''создание персонажа'''
+    player = Player(10, 10, size[0] // 2, 10)
+    pygame.draw.circle(space_screen, (255, 0, 0), player.get_position(), 10)
+
     board = Board(500, 500, space_screen)
     running = True
     board.render()
     k_timer = 0
     while running:
         for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                for spaceship in all_sprites:
-                    spaceship.get_event(event)
             if event.type == pygame.QUIT:
                 running = False
         k_timer += 1
-        space_screen.fill((0, 0, 20))
+        player.move(0, 10)
         board.render()
+        space_screen.fill((0, 0, 0))
+        # if k_timer % 5000 == 0:
+        #     board.render()
 
         pygame.display.flip()
 
