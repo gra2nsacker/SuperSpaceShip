@@ -10,22 +10,28 @@ ENEMIES_ARRAY = []
 SIZE = 1000, 1000
 CNT = 0
 LIFES = 3
+TYPE_OF_LEVEL = [(0, 0, 20), (40, 10, 30)]
+COLOR_INDEX = 0
 
 
-def load_image(name, color_key=None):
+def load_image(name, per_pixel_alpha=False, color_key=None):
     fullname = os.path.join(name)
     try:
-        image = pygame.image.load(fullname).convert()
+        image = pygame.image.load(fullname)
     except pygame.error as message:
         print('Cannot load image:', name)
         raise SystemExit(message)
+
+    if per_pixel_alpha:
+        image = image.convert_alpha()
+    else:
+        image = image.convert()
 
     if color_key is not None:
         if color_key == -1:
             color_key = image.get_at((0, 0))
         image.set_colorkey(color_key)
-    else:
-        image = image.convert_alpha()
+
     return image
 
 
@@ -45,13 +51,13 @@ class Board:
 class Fire(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
-        self.image = load_image("fire.png", -1)
+        self.image = load_image("trubochka.png", True)
         self.rect = self.image.get_rect()
         self.rect.x = 0
         self.rect.y = 0
 
     def move(self):
-        self.rect.y -= 6
+        self.rect.y -= 4
 
     def set_coords(self, x, y):
         self.rect.x = x
@@ -61,7 +67,7 @@ class Fire(pygame.sprite.Sprite):
 class Hero(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
-        self.image = load_image("spaceship.jpg")
+        self.image = load_image("dgj.png", True)
         self.rect = self.image.get_rect()
         self.rect.x = SIZE[0] // 2
         self.rect.y = SIZE[1] // 2
@@ -70,7 +76,7 @@ class Hero(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
-        self.image = load_image("enemy_spaceship.png")
+        self.image = load_image("enemy_spaceship.png", True)
         self.rect = self.image.get_rect()
         self.rect.x = 100
         self.rect.y = 100
@@ -121,7 +127,14 @@ def tick(hero):
                         fire.kill()
                         FIRES_ARRAY.remove(fire)
                         CNT += 1
+                        level_color()
                         break
+
+
+def level_color():
+    global COLOR_INDEX
+    if CNT > 8:
+        COLOR_INDEX = 1
 
 
 def score(screen):
@@ -133,22 +146,11 @@ def score(screen):
 
 
 
-
 def main():
     size = SIZE
     stars_screen = pygame.display.set_mode(size)
     space_screen = pygame.display.set_mode(size)
     fire_screen = pygame.display.set_mode(size)
-    score_screen = pygame.display.set_mode(size)
-
-    # sc = pygame.display.set_mode(SIZE)
-    #
-    # f1 = pygame.font.Font(None, 36)
-    # text1 = f1.render('Hello Привет', True,
-    #                   (255, 255, 255))
-    #
-    # sc.blit(text1, (100, 500))
-    # Надо спросить ДГЖ по поводу возникновения текста поверх экрана
 
     board = Board(size[0], size[1], stars_screen)
     all_sprites = pygame.sprite.Group()
@@ -178,12 +180,12 @@ def main():
         elif keys[pygame.K_LEFT]:
             hero.rect.left -= dist
         for event in pygame.event.get():
-            keys = pygame.key.get_pressed()
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    shoot(fire_sprites, hero.rect.left + 10, hero.rect.top - 20)
+                    shoot(fire_sprites, hero.rect.left + hero.rect.width // 2 - 20, hero.rect.top + hero.rect.height // 2 -  20)
+                    # shoot(fire_sprites, hero.l + hero.rect.width // 2, hero.rect.top - hero.rect.height // 2)
             if hero.rect.top < 600:
                 hero.rect.top = 600
             if hero.rect.left < 0:
@@ -195,7 +197,7 @@ def main():
         if k >= 10000:
             k = 0
 
-        stars_screen.fill((0, 0, 20))
+        stars_screen.fill(TYPE_OF_LEVEL[COLOR_INDEX])
         board.render()
         score(sc)
 
