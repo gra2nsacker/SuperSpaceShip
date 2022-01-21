@@ -144,6 +144,39 @@ def score(screen):
     screen.blit(text1, (800, 100))
 
 
+def start_screen(screen):
+    all_sprites = pygame.sprite.Group()
+    hero = Hero(all_sprites)
+    screen2 = pygame.Surface(SIZE)
+    cnt = 1
+    cnt2 = 1
+    hero.rect.y = SIZE[0] // 6
+    fon = pygame.transform.scale(load_image('fon.jpg'), SIZE)
+    screen.blit(fon, (0, 0))
+
+    while True:
+        hero.rect.x += cnt
+        hero.rect.y += cnt2
+        for event in pygame.event.get():
+            screen2 = pygame.Surface(screen.get_size())
+            if event.type == pygame.QUIT:
+                game_over()
+            elif 107 <= pygame.mouse.get_pos()[0] <= 230 and 810 <= pygame.mouse.get_pos()[
+                1] <= 900 and event.type == pygame.MOUSEBUTTONDOWN:
+                return
+        pygame.display.flip()
+        if hero.rect.x >= 850:
+            cnt = -1
+        if hero.rect.y >= 620:
+            cnt2 = -1
+        if hero.rect.x <= 50:
+            cnt = 1
+        if hero.rect.y <= 50:
+            cnt2 = 1
+        screen2.fill((0, 0, 0))
+        screen.blit(fon, (0, 0))
+        all_sprites.draw(screen)
+        pygame.display.flip()
 
 
 def main():
@@ -151,6 +184,8 @@ def main():
     stars_screen = pygame.display.set_mode(size)
     space_screen = pygame.display.set_mode(size)
     fire_screen = pygame.display.set_mode(size)
+    menu_screen = pygame.display.set_mode(size)
+    start_screen(menu_screen)
 
     board = Board(size[0], size[1], stars_screen)
     all_sprites = pygame.sprite.Group()
