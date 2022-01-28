@@ -43,10 +43,11 @@ class Board:
         self.screen = screen
 
     def render(self):
+        self.screen.fill('yellow')
         for i in range(50):
-            self.screen.fill(pygame.Color('white'),
+            self.screen.fill(pygame.Color('black'),
                         (random.random() * self.width,
-                         random.random() * self.height, 2, 2))
+                         random.random() * self.height, 4, 4))
 
 
 class BoardShop:
@@ -54,7 +55,6 @@ class BoardShop:
         self.width = width
         self.height = height
         self.screen = screen
-
 
 
 class Fire(pygame.sprite.Sprite):
@@ -91,7 +91,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.y = 100
 
     def move(self):
-        self.rect.y += 2
+        self.rect.x += 2
 
     def set_coords(self, x, y):
         self.rect.x = x
@@ -106,8 +106,8 @@ def shoot(sprite, coord_x, coord_y):
 
 def spawn_enemy(board, enemy_sprites):
     enemy = Enemy(enemy_sprites)
-    enemy.rect.x = random.randint(0, board.width)
-    enemy.rect.y = 0
+    enemy.rect.y = random.randint(100, board.width // 2)
+    enemy.rect.x = 0
     ENEMIES_ARRAY.append(enemy)
 
 
@@ -172,10 +172,10 @@ def start_screen(screen):
                 game_over()
             elif 107 <= pygame.mouse.get_pos()[0] <= 230 and 810 <= pygame.mouse.get_pos()[
                 1] <= 900 and event.type == pygame.MOUSEBUTTONDOWN:
-                return 1
+                main(1)
             elif 420 <= pygame.mouse.get_pos()[0] <= 580 and 810 <= pygame.mouse.get_pos()[
                 1] <= 900 and event.type == pygame.MOUSEBUTTONDOWN:
-                return 2
+                main(2)
         pygame.display.flip()
         if hero.rect.x >= 850:
             cnt = -1
@@ -191,10 +191,10 @@ def start_screen(screen):
         pygame.display.flip()
 
 
-def main():
+def main(n):
     size = SIZE
     menu_screen = pygame.display.set_mode(size)
-    if start_screen(menu_screen) == 1:
+    if n == 1:
         stars_screen = pygame.display.set_mode(size)
         space_screen = pygame.display.set_mode(size)
         fire_screen = pygame.display.set_mode(size)
@@ -214,7 +214,7 @@ def main():
             if LIFES == 0:
                 game_over()
             k += 1
-            if k % 900 == 0:
+            if k % 300 == 0:
                 spawn_enemy(board, enemy_sprites)
             tick(hero, menu_screen, stars_screen)
             keys = pygame.key.get_pressed()
@@ -275,4 +275,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    menu_screen = pygame.display.set_mode(SIZE)
+    start_screen(menu_screen)
