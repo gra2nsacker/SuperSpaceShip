@@ -6,6 +6,7 @@ pygame.font.init()
 
 
 FIRES_ARRAY = []
+SKIN = 'WHITE'
 ENEMIES_ARRAY = []
 SIZE = 1000, 1000
 CNT = 0
@@ -46,6 +47,14 @@ class Board:
             self.screen.fill(pygame.Color('white'),
                         (random.random() * self.width,
                          random.random() * self.height, 2, 2))
+
+
+class BoardShop:
+    def __init__(self, width, height, screen):
+        self.width = width
+        self.height = height
+        self.screen = screen
+
 
 
 class Fire(pygame.sprite.Sprite):
@@ -107,7 +116,7 @@ def game_over():
     sys.exit()
 
 
-def tick(hero):
+def tick(hero, to_menu_screen, stars_screen):
     global ENEMIES_ARRAY, CNT
     shipes_colides = pygame.sprite.Group([ship for ship in ENEMIES_ARRAY])
     for i in FIRES_ARRAY:
@@ -115,7 +124,7 @@ def tick(hero):
     for ship in ENEMIES_ARRAY:
         ship.move()
         if len(pygame.sprite.spritecollide(hero, shipes_colides, False)):
-            game_over()
+            start_screen(to_menu_screen)
     for fire in FIRES_ARRAY:
         tmp = pygame.sprite.spritecollide(fire, shipes_colides, False)
         if len(tmp):
@@ -163,7 +172,10 @@ def start_screen(screen):
                 game_over()
             elif 107 <= pygame.mouse.get_pos()[0] <= 230 and 810 <= pygame.mouse.get_pos()[
                 1] <= 900 and event.type == pygame.MOUSEBUTTONDOWN:
-                return
+                return 1
+            elif 420 <= pygame.mouse.get_pos()[0] <= 580 and 810 <= pygame.mouse.get_pos()[
+                1] <= 900 and event.type == pygame.MOUSEBUTTONDOWN:
+                return 2
         pygame.display.flip()
         if hero.rect.x >= 850:
             cnt = -1
@@ -181,67 +193,85 @@ def start_screen(screen):
 
 def main():
     size = SIZE
-    stars_screen = pygame.display.set_mode(size)
-    space_screen = pygame.display.set_mode(size)
-    fire_screen = pygame.display.set_mode(size)
     menu_screen = pygame.display.set_mode(size)
-    start_screen(menu_screen)
+    if start_screen(menu_screen) == 1:
+        stars_screen = pygame.display.set_mode(size)
+        space_screen = pygame.display.set_mode(size)
+        fire_screen = pygame.display.set_mode(size)
 
-    board = Board(size[0], size[1], stars_screen)
-    all_sprites = pygame.sprite.Group()
-    hero = Hero(all_sprites)
-    dist = 2
+        board = Board(size[0], size[1], stars_screen)
+        all_sprites = pygame.sprite.Group()
+        hero = Hero(all_sprites)
+        dist = 2
 
-    enemy_sprites = pygame.sprite.Group()
+        enemy_sprites = pygame.sprite.Group()
 
-    fire_sprites = pygame.sprite.Group()
-    sc = pygame.display.set_mode(SIZE)
-    k = 0
-    running = True
-    while running:
-        if LIFES == 0:
-            game_over()
-        k += 1
-        if k % 900 == 0:
-            spawn_enemy(board, enemy_sprites)
-        tick(hero)
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_DOWN]:
-            hero.rect.top += dist
-        elif keys[pygame.K_UP]:
-            hero.rect.top -= dist
-        if keys[pygame.K_RIGHT]:
-            hero.rect.left += dist
-        elif keys[pygame.K_LEFT]:
-            hero.rect.left -= dist
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    shoot(fire_sprites, hero.rect.left + hero.rect.width // 2 - 20, hero.rect.top + hero.rect.height // 2 -  20)
-                    # shoot(fire_sprites, hero.l + hero.rect.width // 2, hero.rect.top - hero.rect.height // 2)
-            if hero.rect.top < 600:
-                hero.rect.top = 600
-            if hero.rect.left < 0:
-                hero.rect.left = 0
-            if hero.rect.right > 1000:
-                hero.rect.right = 1000
-            if hero.rect.bottom > 1000:
-                hero.rect.bottom = 1000
-        if k >= 10000:
-            k = 0
+        fire_sprites = pygame.sprite.Group()
+        sc = pygame.display.set_mode(SIZE)
+        k = 0
+        running = True
+        while running:
+            if LIFES == 0:
+                game_over()
+            k += 1
+            if k % 900 == 0:
+                spawn_enemy(board, enemy_sprites)
+            tick(hero, menu_screen, stars_screen)
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_DOWN]:
+                hero.rect.top += dist
+            elif keys[pygame.K_UP]:
+                hero.rect.top -= dist
+            if keys[pygame.K_RIGHT]:
+                hero.rect.left += dist
+            elif keys[pygame.K_LEFT]:
+                hero.rect.left -= dist
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        shoot(fire_sprites, hero.rect.left + hero.rect.width // 2 - 20, hero.rect.top + hero.rect.height // 2 - 20)
+                if hero.rect.top < 600:
+                    hero.rect.top = 600
+                if hero.rect.left < 0:
+                    hero.rect.left = 0
+                if hero.rect.right > 1000:
+                    hero.rect.right = 1000
+                if hero.rect.bottom > 1000:
+                    hero.rect.bottom = 1000
+            if k >= 10000:
+                k = 0
 
-        stars_screen.fill(TYPE_OF_LEVEL[COLOR_INDEX])
-        board.render()
-        score(sc)
+            stars_screen.fill(TYPE_OF_LEVEL[COLOR_INDEX])
+            board.render()
+            score(sc)
 
-        all_sprites.draw(space_screen)
-        enemy_sprites.draw(space_screen)
-        fire_sprites.draw(fire_screen)
-        pygame.display.flip()
+            all_sprites.draw(space_screen)
+            enemy_sprites.draw(space_screen)
+            fire_sprites.draw(fire_screen)
+            pygame.display.flip()
 
-    pygame.quit()
+        pygame.quit()
+    else:
+        stars_screen = pygame.display.set_mode(size)
+        fon = pygame.transform.scale(load_image('store-fon.jpg'), SIZE)
+        stars_screen.blit(fon, (0, 0))
+
+        board = BoardShop(size[0], size[1], stars_screen)
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        print(2)
+                if 696 <= pygame.mouse.get_pos()[0] <= 965 and 858 <= pygame.mouse.get_pos()[
+                    1] <= 974 and event.type == pygame.MOUSEBUTTONDOWN:
+                    start_screen(menu_screen)
+            pygame.display.flip()
+        pygame.quit()
 
 
 if __name__ == '__main__':
