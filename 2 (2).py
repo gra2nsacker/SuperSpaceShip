@@ -176,6 +176,9 @@ def start_screen(screen):
             elif 420 <= pygame.mouse.get_pos()[0] <= 580 and 810 <= pygame.mouse.get_pos()[
                 1] <= 900 and event.type == pygame.MOUSEBUTTONDOWN:
                 main(2)
+            elif 765 <= pygame.mouse.get_pos()[0] <= 930 and 810 <= pygame.mouse.get_pos()[
+                1] <= 900 and event.type == pygame.MOUSEBUTTONDOWN:
+                main(3)
         pygame.display.flip()
         if hero.rect.x >= 850:
             cnt = -1
@@ -253,11 +256,29 @@ def main(n):
             pygame.display.flip()
 
         pygame.quit()
-    else:
+    elif n == 2:
         stars_screen = pygame.display.set_mode(size)
         fon = pygame.transform.scale(load_image('store-fon.jpg'), SIZE)
         stars_screen.blit(fon, (0, 0))
 
+        board = BoardShop(size[0], size[1], stars_screen)
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        print(2)
+                if 696 <= pygame.mouse.get_pos()[0] <= 965 and 858 <= pygame.mouse.get_pos()[
+                    1] <= 974 and event.type == pygame.MOUSEBUTTONDOWN:
+                    start_screen(menu_screen)
+            pygame.display.flip()
+        pygame.quit()
+    elif n == 3:
+        stars_screen = pygame.display.set_mode(size)
+        fon = pygame.transform.scale(load_image('fon.jpg'), SIZE)
+        stars_screen.blit(fon, (0, 0))
         board = BoardShop(size[0], size[1], stars_screen)
         running = True
         while running:
