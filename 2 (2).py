@@ -9,6 +9,7 @@ FIRES_ARRAY = []
 SKIN = 'WHITE'
 ENEMIES_ARRAY = []
 SIZE = 1000, 1000
+# SIZE = 800, 800
 CNT = 0
 LIFES = 3
 TYPE_OF_LEVEL = [(0, 0, 20), (40, 10, 30)]
@@ -60,7 +61,7 @@ class BoardShop:
 class Fire(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
-        self.image = load_image("trubochka.png", True)
+        self.image = load_image("trezubec.png", True)
         self.rect = self.image.get_rect()
         self.rect.x = 0
         self.rect.y = 0
@@ -72,8 +73,7 @@ class Fire(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-
-class Hero(pygame.sprite.Sprite):
+class Hero_for_menu(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
         self.image = load_image("dgj.png", True)
@@ -82,10 +82,19 @@ class Hero(pygame.sprite.Sprite):
         self.rect.y = SIZE[1] // 2
 
 
+class Hero(pygame.sprite.Sprite):
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = load_image("big_dgj.png", True)
+        self.rect = self.image.get_rect()
+        self.rect.x = SIZE[0] // 2
+        self.rect.y = SIZE[1] // 2
+
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
-        self.image = load_image("enemy_spaceship.png", True)
+        self.image = load_image("crab1.png", True)
         self.rect = self.image.get_rect()
         self.rect.x = 100
         self.rect.y = 100
@@ -155,7 +164,7 @@ def score(screen):
 
 def start_screen(screen):
     all_sprites = pygame.sprite.Group()
-    hero = Hero(all_sprites)
+    hero = Hero_for_menu(all_sprites)
     screen2 = pygame.Surface(SIZE)
     cnt = 1
     cnt2 = 1
