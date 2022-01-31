@@ -11,13 +11,15 @@ SKINS = ['dgj_blue_3.png']
 SKIN = 'WHITE'
 ENEMIES_ARRAY = []
 SIZE = 1000, 1000
-# SIZE = 800, 800
+
 CNT = 0
 LIFES = 5
 TYPE_OF_LEVEL = [(0, 0, 20), (40, 10, 30)]
 COLOR_INDEX = 0
 SHTANI = None
 USERNAME = ''
+
+clock = pygame.time.Clock()
 
 
 def load_image(name, per_pixel_alpha=False, color_key=None):
@@ -87,28 +89,52 @@ class Hero(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
         if SHTANI is None:
-            self.image = load_image("big_dgj.png", True)
+            self.image = load_image("dgj_blue_1.png", True)
         else:
             self.image = load_image(SHTANI, True)
         self.rect = self.image.get_rect()
         self.rect.x = SIZE[0] // 2
         self.rect.y = SIZE[1] // 2
+        self.im_type = 1
+
+    def change_sprite(self):
+        if self.im_type == 1:
+            self.im_type = 2
+            self.image = load_image("dgj_blue_2.png", True)
+        elif self.im_type == 2:
+            self.im_type = 3
+            self.image = load_image("dgj_blue_3.png", True)
+        elif self.im_type == 3:
+            self.im_type = 1
+            self.image = load_image("dgj_blue_1.png", True)
 
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
         self.image = load_image("crab1.png", True)
+        self.im_type = 1
         self.rect = self.image.get_rect()
         self.rect.x = 100
         self.rect.y = 100
 
     def move(self):
-        self.rect.x += 2
+        self.rect.x += random.randint(1, 3)
 
     def set_coords(self, x, y):
         self.rect.x = x
         self.rect.y = y
+
+    def change_sprite(self):
+        if self.im_type == 1:
+            self.im_type = 2
+            self.image = load_image("crab2.png", True)
+        elif self.im_type == 2:
+            self.im_type = 3
+            self.image = load_image("crab3.png", True)
+        elif self.im_type == 3:
+            self.im_type = 1
+            self.image = load_image("crab1.png", True)
 
 
 def shoot(sprite, coord_x, coord_y):
@@ -137,6 +163,7 @@ def tick(hero, to_menu_screen, stars_screen):
     terminate = False
     for ship in ENEMIES_ARRAY:
         ship.move()
+        ship.change_sprite()
         if ship.rect.x > 1000:
             terminate = True
         if terminate:
@@ -245,7 +272,6 @@ def main(n):
         while running:
             if LIFES == 0:
                 access = False
-
                 start_screen(menu_screen)
                 # with open('table.csv', 'w', newline='') as f:
                 #     writer = csv.DictWriter(
@@ -265,8 +291,10 @@ def main(n):
                 hero.rect.top -= dist
             if keys[pygame.K_RIGHT]:
                 hero.rect.left += dist
+                hero.change_sprite()
             elif keys[pygame.K_LEFT]:
                 hero.rect.left -= dist
+                hero.change_sprite()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
