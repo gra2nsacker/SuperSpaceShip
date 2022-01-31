@@ -1,13 +1,15 @@
 import os
 import random
 import sys
+import time
+
 import pygame
 import csv
 pygame.font.init()
 
 
 FIRES_ARRAY = []
-SKINS = ['dgj_blue_3.png']
+SKINS = ['blue', 'purple', 'rainbow']
 SKIN = 'WHITE'
 ENEMIES_ARRAY = []
 SIZE = 1000, 1000
@@ -16,7 +18,7 @@ CNT = 0
 LIFES = 5
 TYPE_OF_LEVEL = [(0, 0, 20), (40, 10, 30)]
 COLOR_INDEX = 0
-SHTANI = None
+SHTANI = 'blue'
 USERNAME = ''
 
 clock = pygame.time.Clock()
@@ -89,30 +91,82 @@ class Hero(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
         if SHTANI is None:
-            self.image = load_image("dgj_blue_1.png", True)
+            self.image = load_image("pict/dgj/blue/walk/dgj_blue_1.png", True)
         else:
-            self.image = load_image(SHTANI, True)
+            if SHTANI == 'purple':
+                self.image = load_image("pict/dgj/purple/walk/1.png", True)
+            elif SHTANI == 'blue':
+                self.image = load_image("pict/dgj/blue/walk/dgj_blue_1.png", True)
+            elif SHTANI == 'rainbow':
+                self.image = load_image("pict/dgj/rainbow/walk/1.png", True)
         self.rect = self.image.get_rect()
         self.rect.x = SIZE[0] // 2
         self.rect.y = SIZE[1] // 2
         self.im_type = 1
 
-    def change_sprite(self):
-        if self.im_type == 1:
-            self.im_type = 2
-            self.image = load_image("dgj_blue_2.png", True)
-        elif self.im_type == 2:
-            self.im_type = 3
-            self.image = load_image("dgj_blue_3.png", True)
-        elif self.im_type == 3:
-            self.im_type = 1
-            self.image = load_image("dgj_blue_1.png", True)
+    def throw(self, k):
+        if SHTANI == 'blue':
+            if k == 1:
+                self.image = load_image("pict/dgj/blue/throw/dgj_blue_throw_2.png", True)
+            if k == 2:
+                self.image = load_image("pict/dgj/blue/walk/dgj_blue_1.png", True)
+        elif SHTANI == 'purple':
+            if k == 1:
+                self.image = load_image("pict/dgj/purple/throw/2.png", True)
+            if k == 2:
+                self.image = load_image("pict/dgj/purple/walk/1.png", True)
+        elif SHTANI == 'rainbow':
+            if k == 1:
+                self.image = load_image("pict/dgj/rainbow/throw/2.png", True)
+            if k == 2:
+                self.image = load_image("pict/dgj/rainbow/walk/1.png", True)
 
+
+    def change_sprite(self):
+        if SHTANI == 'blue':
+            if self.im_type == 1:
+                self.im_type = 2
+                self.image = load_image("pict/dgj/blue/walk/dgj_blue_2.png", True)
+            elif self.im_type == 2:
+                self.im_type = 3
+                self.image = load_image("pict/dgj/blue/walk/dgj_blue_3.png", True)
+            elif self.im_type == 3:
+                self.im_type = 4
+                self.image = load_image("pict/dgj/blue/walk/dgj_blue_4.png", True)
+            elif self.im_type == 4:
+                self.im_type = 1
+                self.image = load_image("pict/dgj/blue/walk/dgj_blue_1.png", True)
+        elif SHTANI == 'purple':
+            if self.im_type == 1:
+                self.im_type = 2
+                self.image = load_image("pict/dgj/purple/walk/2.png", True)
+            elif self.im_type == 2:
+                self.im_type = 3
+                self.image = load_image("pict/dgj/purple/walk/3.png", True)
+            elif self.im_type == 3:
+                self.im_type = 4
+                self.image = load_image("pict/dgj/purple/walk/4.png", True)
+            elif self.im_type == 4:
+                self.im_type = 1
+                self.image = load_image("pict/dgj/purple/walk/1.png", True)
+        elif SHTANI == 'rainbow':
+            if self.im_type == 1:
+                self.im_type = 2
+                self.image = load_image("pict/dgj/rainbow/walk/2.png", True)
+            elif self.im_type == 2:
+                self.im_type = 3
+                self.image = load_image("pict/dgj/rainbow/walk/3.png", True)
+            elif self.im_type == 3:
+                self.im_type = 4
+                self.image = load_image("pict/dgj/rainbow/walk/4.png", True)
+            elif self.im_type == 4:
+                self.im_type = 1
+                self.image = load_image("pict/dgj/rainbow/walk/1.png", True)
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
-        self.image = load_image("crab1.png", True)
+        self.image = load_image("pict/crab/crab1.png", True)
         self.im_type = 1
         self.rect = self.image.get_rect()
         self.rect.x = 100
@@ -125,16 +179,17 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+
     def change_sprite(self):
         if self.im_type == 1:
             self.im_type = 2
-            self.image = load_image("crab2.png", True)
+            self.image = load_image("pict/crab/crab2.png", True)
         elif self.im_type == 2:
             self.im_type = 3
-            self.image = load_image("crab3.png", True)
+            self.image = load_image("pict/crab/crab3.png", True)
         elif self.im_type == 3:
             self.im_type = 1
-            self.image = load_image("crab1.png", True)
+            self.image = load_image("pict/crab/crab1.png", True)
 
 
 def shoot(sprite, coord_x, coord_y):
@@ -210,7 +265,6 @@ def start_screen(screen):
     global LIFES, CNT
     all_sprites = pygame.sprite.Group()
     hero = Hero_for_menu(all_sprites)
-    screen2 = pygame.Surface(SIZE)
     cnt = 1
     cnt2 = 1
     hero.rect.y = SIZE[0] // 6
@@ -223,7 +277,6 @@ def start_screen(screen):
         hero.rect.x += cnt
         hero.rect.y += cnt2
         for event in pygame.event.get():
-            screen2 = pygame.Surface(screen.get_size())
             if event.type == pygame.QUIT:
                 game_over()
             elif 107 <= pygame.mouse.get_pos()[0] <= 230 and 810 <= pygame.mouse.get_pos()[
@@ -269,7 +322,10 @@ def main(n):
         sc = pygame.display.set_mode(SIZE)
         k = 0
         running = True
+        flag = False
         while running:
+            if flag and k % 100 == 0:
+                hero.throw(2)
             if LIFES == 0:
                 access = False
                 start_screen(menu_screen)
@@ -300,7 +356,10 @@ def main(n):
                     running = False
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
+                        hero.throw(1)
+                        flag = True
                         shoot(fire_sprites, hero.rect.left + hero.rect.width // 2 - 90, hero.rect.top + hero.rect.height // 2 - 50)
+
                 if hero.rect.top < 600:
                     hero.rect.top = 600
                 if hero.rect.left < 0:
@@ -309,7 +368,7 @@ def main(n):
                     hero.rect.right = 1000
                 if hero.rect.bottom > 1000:
                     hero.rect.bottom = 1000
-            if k >= 10000:
+            if k >= 1000:
                 k = 0
 
             # stars_screen.fill(TYPE_OF_LEVEL[COLOR_INDEX])
@@ -341,10 +400,10 @@ def main(n):
                     SHTANI = SKINS[0]
                 if 496 <= pygame.mouse.get_pos()[0] <= 647 and 274 <= pygame.mouse.get_pos()[
                     1] <= 362 and event.type == pygame.MOUSEBUTTONDOWN:
-                    pass
+                    SHTANI = SKINS[1]
                 if 411 <= pygame.mouse.get_pos()[0] <= 565 and 526 <= pygame.mouse.get_pos()[
                     1] <= 618 and event.type == pygame.MOUSEBUTTONDOWN:
-                    pass
+                    SHTANI = SKINS[2]
             pygame.display.flip()
         pygame.quit()
     elif n == 3:
