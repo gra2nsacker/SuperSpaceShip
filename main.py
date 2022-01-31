@@ -1,27 +1,41 @@
 from random import random
 import pygame
+import os
+import sys
 from pygame.sprite import Sprite
 
 
-class Player:
-    def __init__(self, width, height, pos_x, pos_y):
-        self.pos_x = pos_x
-        self.pos_y = pos_y
-        self.width = width
-        self.height = height
+def load_image(name, colorkey=None):
+    fullname = os.path.join(name)
+    image = pygame.image.load(fullname)
+    return image
 
-    def move(self, x, y):
-        self.pos_x += x
-        self.pos_y += y
 
-    def get_width(self):
-        return self.width
+all_sprites = pygame.sprite.Group()
+sprite = pygame.sprite.Sprite()
+sprite.image = load_image("spaceship2.jpg")
+sprite.rect = sprite.image.get_rect()
+all_sprites.add(sprite)
+size = width, height = 500, 500
 
-    def get_height(self):
-        return self.height
 
-    def get_position(self):
-        return self.pos_x, self.pos_y
+class Bomb(pygame.sprite.Sprite):
+    image = load_image("spaceship2.png")
+    image_boom = load_image("spaceship2.png")
+
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = Bomb.image
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randrange(width)
+        self.rect.y = random.randrange(height)
+
+    def update(self, *args):
+        self.rect = self.rect.move(random.randrange(3) - 1,
+                                   random.randrange(3) - 1)
+        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
+                self.rect.collidepoint(args[0].pos):
+            self.image = self.image_boom
 
 
 class Board:
@@ -31,11 +45,10 @@ class Board:
         self.screen = screen
 
     def render(self):
-        for i in range(200):
+        for i in range(50):
             self.screen.fill(pygame.Color('white'),
-                        (random() * self.width,
-                         random() * self.height, 1, 1))
-
+                        (random.random() * self.width,
+                         random.random() * self.height, 1, 1))
 
 
 def main():
