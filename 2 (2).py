@@ -1,12 +1,10 @@
 import os
 import random
 import sys
-import time
 
 import pygame
-import csv
-pygame.font.init()
 
+pygame.font.init()
 
 FIRES_ARRAY = []
 SKINS = ['blue', 'purple', 'rainbow']
@@ -121,7 +119,6 @@ class Hero(pygame.sprite.Sprite):
             if k == 2:
                 self.image = load_image("pict/dgj/rainbow/walk/1.png", True)
 
-
     def change_sprite(self):
         if SHTANI == 'blue':
             if self.im_type == 1:
@@ -163,6 +160,7 @@ class Hero(pygame.sprite.Sprite):
                 self.im_type = 1
                 self.image = load_image("pict/dgj/rainbow/walk/1.png", True)
 
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
@@ -178,7 +176,6 @@ class Enemy(pygame.sprite.Sprite):
     def set_coords(self, x, y):
         self.rect.x = x
         self.rect.y = y
-
 
     def change_sprite(self):
         if self.im_type == 1:
@@ -208,6 +205,12 @@ def spawn_enemy(board, enemy_sprites):
 def game_over():
     print(CNT)
     sys.exit()
+
+
+def high_score(cnt):
+    with open('txts/score.txt', 'w') as f:
+        f.write(str(cnt))
+
 
 
 def tick(hero, to_menu_screen, stars_screen):
@@ -261,6 +264,15 @@ def enter_name():
     pass
 
 
+def lose(screen):
+    fon = pygame.transform.scale(load_image('ded.png'), SIZE)
+    k = 0
+    screen.blit(fon, (0, 0))
+    pygame.display.flip()
+    while k < 15000000:
+        k += 1
+
+
 def start_screen(screen):
     global LIFES, CNT
     all_sprites = pygame.sprite.Group()
@@ -310,6 +322,7 @@ def main(n):
         stars_screen = pygame.display.set_mode(size)
         space_screen = pygame.display.set_mode(size)
         fire_screen = pygame.display.set_mode(size)
+        lose_screen = pygame.display.set_mode(size)
 
         board = Board(size[0], size[1], stars_screen)
         all_sprites = pygame.sprite.Group()
@@ -328,14 +341,9 @@ def main(n):
                 hero.throw(2)
             if LIFES == 0:
                 access = False
+                high_score(CNT)
+                lose(lose_screen)
                 start_screen(menu_screen)
-                # with open('table.csv', 'w', newline='') as f:
-                #     writer = csv.DictWriter(
-                #         f, fieldnames=list(data[0].keys()),
-                #         delimiter=',', quoting=csv.QUOTE_NONNUMERIC)
-                #     writer.writeheader()
-                #     for d in data:
-                #         writer.writerow(d)
             k += 1
             if k % 300 == 0:
                 spawn_enemy(board, enemy_sprites)
@@ -358,7 +366,8 @@ def main(n):
                     if event.key == pygame.K_SPACE:
                         hero.throw(1)
                         flag = True
-                        shoot(fire_sprites, hero.rect.left + hero.rect.width // 2 - 90, hero.rect.top + hero.rect.height // 2 - 50)
+                        shoot(fire_sprites, hero.rect.left + hero.rect.width // 2 - 90,
+                              hero.rect.top + hero.rect.height // 2 - 50)
 
                 if hero.rect.top < 600:
                     hero.rect.top = 600
@@ -408,9 +417,8 @@ def main(n):
         pygame.quit()
     elif n == 3:
         stars_screen = pygame.display.set_mode(size)
-        fon = pygame.transform.scale(load_image('fon.jpg'), SIZE)
-        stars_screen.blit(fon, (0, 0))
-        board = BoardShop(size[0], size[1], stars_screen)
+        # fon = pygame.transform.scale('black', SIZE)
+        stars_screen.fill('black')
         running = True
         while running:
             for event in pygame.event.get():
