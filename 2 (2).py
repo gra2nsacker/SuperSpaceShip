@@ -13,7 +13,6 @@ ENEMIES_ARRAY = []
 SOLD_OUT = {'blue': 1, 'purple': 0, 'rainbow': 0}
 SIZE = 1000, 1000
 
-
 CNT = 0
 LIFES = 5
 TYPE_OF_LEVEL = [(0, 0, 20), (40, 10, 30)]
@@ -23,15 +22,22 @@ USERNAME = ''
 
 clock = pygame.time.Clock()
 
+
 def change_saves():
     with open('txts/saves.txt', 'w') as f:
-        f.write("{" + "'blue': {}, 'purple': {}, 'rainbow': {}".format(1, SOLD_OUT['purple'], SOLD_OUT['rainbow']) + "}")
+        f.write(
+            '"{' + "'blue': {}, 'purple': {}, 'rainbow': {}".format(1, SOLD_OUT['purple'], SOLD_OUT['rainbow']) + '}"')
+
 
 def load_saves():
     global SOLD_OUT
     with open('txts/saves.txt', 'r') as f:
         tmp = f.readline()
         SOLD_OUT = json.loads(tmp)
+        new_sold_out = {'blue': int(SOLD_OUT[9]),
+                        'purple': int(SOLD_OUT[22]),
+                        'rainbow': int(SOLD_OUT[36])}
+        SOLD_OUT = new_sold_out
 
 
 def load_image(name, per_pixel_alpha=False, color_key=None):
@@ -192,7 +198,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.y = 100
 
     def move(self):
-        if self.is_scate:
+        if not self.is_scate:
             self.rect.x += random.randint(1, 3)
         else:
             self.rect.x += random.randint(2, 4)
@@ -474,6 +480,7 @@ def main(n):
         fon = pygame.transform.scale(load_image('store.jpg'), SIZE)
         stars_screen.blit(fon, (0, 0))
         pr_coins(stars_screen)
+        load_saves()
 
         board = BoardShop(size[0], size[1], stars_screen)
         running = True
