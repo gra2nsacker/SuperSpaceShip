@@ -208,8 +208,23 @@ def game_over():
 
 
 def high_score(cnt):
+    pred_res = 0
+    flag_pusto = False
+    with open('txts/score.txt', 'r') as f:
+        if f.readline() != '':
+            print(f.readline() == '')
+            pred_res = int(f.readline())
+        else:
+            pred_res = 0
+            flag_pusto = True
     with open('txts/score.txt', 'w') as f:
-        f.write(str(cnt))
+        if not flag_pusto:
+            if cnt > pred_res:
+                f.write(str(cnt))
+            else:
+                f.write(str(pred_res))
+        else:
+            f.write(str(cnt))
 
 
 
@@ -265,7 +280,7 @@ def enter_name():
 
 
 def lose(screen):
-    fon = pygame.transform.scale(load_image('ded.png'), SIZE)
+    fon = pygame.transform.scale(load_image('pict/screens/lose_screen.png'), SIZE)
     k = 0
     screen.blit(fon, (0, 0))
     pygame.display.flip()
