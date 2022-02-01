@@ -10,6 +10,7 @@ FIRES_ARRAY = []
 SKINS = ['blue', 'purple', 'rainbow']
 SKIN = 'WHITE'
 ENEMIES_ARRAY = []
+SOLD_OUT = {'blue': 1, 'purple': 0, 'rainbow': 0}
 SIZE = 1000, 1000
 
 CNT = 0
@@ -163,30 +164,46 @@ class Hero(pygame.sprite.Sprite):
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, group):
+        global CNT
         super().__init__(group)
-        self.image = load_image("pict/crab/crab1.png", True)
+        self.is_scate = False
+        if CNT > 10:
+            self.image = load_image("pict/scate_crab/crab_sc.png", True)
+        else:
+            self.image = load_image("pict/crab/crab1.png", True)
         self.im_type = 1
         self.rect = self.image.get_rect()
         self.rect.x = 100
         self.rect.y = 100
 
     def move(self):
-        self.rect.x += random.randint(1, 3)
+        if CNT <= 10:
+            self.rect.x += random.randint(1, 3)
+        else:
+            self.rect.x += random.randint(2, 4)
 
     def set_coords(self, x, y):
         self.rect.x = x
         self.rect.y = y
 
     def change_sprite(self):
-        if self.im_type == 1:
-            self.im_type = 2
-            self.image = load_image("pict/crab/crab2.png", True)
-        elif self.im_type == 2:
-            self.im_type = 3
-            self.image = load_image("pict/crab/crab3.png", True)
-        elif self.im_type == 3:
-            self.im_type = 1
-            self.image = load_image("pict/crab/crab1.png", True)
+        if not self.is_scate:
+            if self.im_type == 1:
+                self.im_type = 2
+                self.image = load_image("pict/crab/crab2.png", True)
+            elif self.im_type == 2:
+                self.im_type = 3
+                self.image = load_image("pict/crab/crab3.png", True)
+            elif self.im_type == 3:
+                self.im_type = 1
+                self.image = load_image("pict/crab/crab1.png", True)
+        else:
+            if self.im_type == 1:
+                self.im_type = 2
+                self.image = load_image("pict/scate_crab/crab_sc.png", True)
+            elif self.im_type == 2:
+                self.im_type = 1
+                self.image = load_image("pict/scate_crab/crab_sc2.png", True)
 
 
 def shoot(sprite, coord_x, coord_y):
@@ -208,13 +225,11 @@ def game_over():
 
 
 def high_score(cnt):
-    pred_res = 0
     flag_pusto = False
     with open('txts/score.txt', 'r') as f:
-        if f.readline() != '':
-            print(f.readline() == '')
+        try:
             pred_res = int(f.readline())
-        else:
+        except ValueError:
             pred_res = 0
             flag_pusto = True
     with open('txts/score.txt', 'w') as f:
@@ -225,7 +240,13 @@ def high_score(cnt):
                 f.write(str(pred_res))
         else:
             f.write(str(cnt))
-
+    with open('txts/coins.txt', 'r') as f:
+        try:
+            pred_coins = int(f.readline())
+        except ValueError:
+            pred_coins = 0
+    with open('txts/coins.txt', 'w') as f:
+        f.write(str(pred_coins + cnt))
 
 
 def tick(hero, to_menu_screen, stars_screen):
@@ -240,9 +261,11 @@ def tick(hero, to_menu_screen, stars_screen):
         if ship.rect.x > 1000:
             terminate = True
         if terminate:
-            LIFES -= 1
             terminate = False
             ENEMIES_ARRAY.remove(ship)
+            LIFES -= 1
+        if LIFES == 0:
+            ENEMIES_ARRAY = []
 
     for fire in FIRES_ARRAY:
         tmp = pygame.sprite.spritecollide(fire, shipes_colides, False)
@@ -275,8 +298,34 @@ def score(screen):
     screen.blit(text2, (800, 950))
 
 
-def enter_name():
-    pass
+def get_coins():
+    with open('txts/coins.txt', 'r') as f:
+        return int(f.readline())
+
+
+def get_score():
+    with open('txts/score.txt', 'r') as f:
+        return int(f.readline())
+
+
+def spend_coins(k):
+    tmp = get_coins()
+    with open('txts/coins.txt', 'w') as f:
+        f.write(str(tmp - k))
+
+
+def pr_coins(screen):
+    f1 = pygame.font.Font(None, 50)
+    text1 = f1.render(f'COINS: {get_coins()}', True,
+                      (0, 0, 0))
+    screen.blit(text1, (100, 900))
+
+
+def pr_score(screen):
+    f1 = pygame.font.Font(None, 120)
+    text1 = f1.render(f'HIGH SCORE: {get_score()}', True,
+                      (255, 255, 255))
+    screen.blit(text1, (170, 200))
 
 
 def lose(screen):
@@ -409,6 +458,7 @@ def main(n):
         stars_screen = pygame.display.set_mode(size)
         fon = pygame.transform.scale(load_image('store.jpg'), SIZE)
         stars_screen.blit(fon, (0, 0))
+        pr_coins(stars_screen)
 
         board = BoardShop(size[0], size[1], stars_screen)
         running = True
@@ -423,17 +473,28 @@ def main(n):
                     1] <= 369 and event.type == pygame.MOUSEBUTTONDOWN:
                     SHTANI = SKINS[0]
                 if 496 <= pygame.mouse.get_pos()[0] <= 647 and 274 <= pygame.mouse.get_pos()[
-                    1] <= 362 and event.type == pygame.MOUSEBUTTONDOWN:
+                    1] <= 362 and event.type == pygame.MOUSEBUTTONDOWN and get_coins() >= 75:
                     SHTANI = SKINS[1]
+                    if not SOLD_OUT['purple']:
+                        spend_coins(75)
+                        SOLD_OUT['purple'] = 1
+                        stars_screen.blit(fon, (0, 0))
+                        pr_coins(stars_screen)
                 if 411 <= pygame.mouse.get_pos()[0] <= 565 and 526 <= pygame.mouse.get_pos()[
-                    1] <= 618 and event.type == pygame.MOUSEBUTTONDOWN:
+                    1] <= 618 and event.type == pygame.MOUSEBUTTONDOWN and get_coins() >= 1001:
                     SHTANI = SKINS[2]
+                    if not SOLD_OUT['rainbow']:
+                        spend_coins(1001)
+                        SOLD_OUT['rainbow'] = 1
+                        stars_screen.blit(fon, (0, 0))
+                        pr_coins(stars_screen)
             pygame.display.flip()
         pygame.quit()
     elif n == 3:
         stars_screen = pygame.display.set_mode(size)
-        # fon = pygame.transform.scale('black', SIZE)
-        stars_screen.fill('black')
+        fon = pygame.transform.scale(load_image('pict/screens/settings.png'), SIZE)
+        stars_screen.blit(fon, (0, 0))
+        pr_score(stars_screen)
         running = True
         while running:
             for event in pygame.event.get():
