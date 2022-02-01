@@ -1,7 +1,7 @@
 import os
 import random
 import sys
-
+import json
 import pygame
 
 pygame.font.init()
@@ -22,6 +22,16 @@ SHTANI = 'blue'
 USERNAME = ''
 
 clock = pygame.time.Clock()
+
+def change_saves():
+    with open('txts/saves.txt', 'w') as f:
+        f.write("{" + "'blue': {}, 'purple': {}, 'rainbow': {}".format(1, SOLD_OUT['purple'], SOLD_OUT['rainbow']) + "}")
+
+def load_saves():
+    global SOLD_OUT
+    with open('txts/saves.txt', 'r') as f:
+        tmp = f.readline()
+        SOLD_OUT = json.loads(tmp)
 
 
 def load_image(name, per_pixel_alpha=False, color_key=None):
@@ -483,6 +493,7 @@ def main(n):
                     if not SOLD_OUT['purple']:
                         spend_coins(75)
                         SOLD_OUT['purple'] = 1
+                        change_saves()
                         stars_screen.blit(fon, (0, 0))
                         pr_coins(stars_screen)
                 if 411 <= pygame.mouse.get_pos()[0] <= 565 and 526 <= pygame.mouse.get_pos()[
@@ -491,6 +502,7 @@ def main(n):
                     if not SOLD_OUT['rainbow']:
                         spend_coins(1001)
                         SOLD_OUT['rainbow'] = 1
+                        change_saves()
                         stars_screen.blit(fon, (0, 0))
                         pr_coins(stars_screen)
             pygame.display.flip()
