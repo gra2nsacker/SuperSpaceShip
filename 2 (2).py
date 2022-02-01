@@ -13,6 +13,7 @@ ENEMIES_ARRAY = []
 SOLD_OUT = {'blue': 1, 'purple': 0, 'rainbow': 0}
 SIZE = 1000, 1000
 
+
 CNT = 0
 LIFES = 5
 TYPE_OF_LEVEL = [(0, 0, 20), (40, 10, 30)]
@@ -168,7 +169,11 @@ class Enemy(pygame.sprite.Sprite):
         super().__init__(group)
         self.is_scate = False
         if CNT > 10:
-            self.image = load_image("pict/scate_crab/crab_sc.png", True)
+            self.is_scate = random.randint(0, 1)
+            if self.is_scate:
+                self.image = load_image("pict/scate_crab/crab_sc.png", True)
+            else:
+                self.image = load_image("pict/crab/crab1.png", True)
         else:
             self.image = load_image("pict/crab/crab1.png", True)
         self.im_type = 1
@@ -177,7 +182,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.y = 100
 
     def move(self):
-        if CNT <= 10:
+        if self.is_scate:
             self.rect.x += random.randint(1, 3)
         else:
             self.rect.x += random.randint(2, 4)
